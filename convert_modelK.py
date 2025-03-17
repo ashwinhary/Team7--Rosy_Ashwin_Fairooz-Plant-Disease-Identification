@@ -3,15 +3,15 @@ from tensorflow.keras.models import load_model
 import numpy as np
 import cv2
 
-# ? Load the trained model
-h5_model_path = "plant_disease_model.h5"
+# ? Load the trained MobileNetV2 model
+h5_model_path = "plant_disease_mobilenetv2.h5"  # Ensure the model is trained & saved
 model = load_model(h5_model_path)
 
 # ? Print model summary to verify the expected input shape
 model.summary()
 
 # ? Get expected input shape from the model
-expected_shape = model.input_shape  # Example: (None, 148, 148, 3)
+expected_shape = model.input_shape  # Example: (None, 224, 224, 3)
 height, width = expected_shape[1], expected_shape[2]
 
 # ? Load and preprocess a sample image for prediction
@@ -24,7 +24,7 @@ def preprocess_image(image_path, target_size):
     return image
 
 # ? Test with a sample image
-image_path = "/home/exouser/Public/Plant_leaf_diseases_dataset_with_augmentation/test/Tomato___Leaf_Mold/image (54).JPG"  # Replace with an act image
+image_path = "/home/exouser/Public/Plant_leaf_diseases_dataset_with_augmentation/test/Tomato___Leaf_Mold/image (54).JPG"  # Replace with actual image
 input_image = preprocess_image(image_path, (height, width))
 
 # ? Make prediction
