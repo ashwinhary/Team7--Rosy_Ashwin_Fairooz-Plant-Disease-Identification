@@ -1,34 +1,55 @@
-# compile_model.py
+import numpy as np
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 
-from keras.models import Sequential
-from keras.layers import Dense, Conv2D, Flatten, MaxPooling2D
-from keras.optimizers import Adam
-from keras.saving import save_model
-from custom_loss import weighted_loss  # Import the custom loss function
+# Load the specific image from the provided path
+image_path = "/home/exouser/Public/Plant_leaf_diseases_dataset_with_augmentation/test/Apple___Apple_scab/image (62).JPG"
+img = load_img(image_path)  # Load image
+img_array = img_to_array(img)  # Convert to array
+img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
 
-def build_model(input_shape, num_classes):
-    model = Sequential([
-        Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
-        MaxPooling2D(pool_size=(2, 2)),
-        Flatten(),
-        Dense(128, activation='relu'),
-        Dense(num_classes, activation='softmax')
-    ])
-    
-    model.compile(optimizer=Adam(), loss=weighted_loss, metrics=['accuracy'])
-    
-    return model
+# Create an ImageDataGenerator with the specified augmentations
+datagen = ImageDataGenerator(
+    rotation_range=40,         # Random rotations between 0 and 40 degrees
+    width_shift_range=0.2,     # Random horizontal shifts (20% of the image width)
+    height_shift_range=0.2,    # Random vertical shifts (20% of the image height)
+    shear_range=0.2,           # Shear transformations
+    zoom_range=0.2,            # Random zoom
+    horizontal_flip=True,      # Random horizontal flip
+    vertical_flip=True         # Random vertical flip (added explicitly)
+)
 
-# Define input shape and number of classes
-input_shape = (64, 64, 3)  # Modify according to your dataset
-num_classes = 39  # Modify according to your number of classes
+# Generate augmented images (we'll generate 6 for display)
+augmented_images = datagen.flow(img_array, batch_size=1)
 
-# Build and train the model (using your dataset here)
-model = build_model(input_shape, num_classes)
+# List of augmentation types for labeling
+augmentation_types = [
+    "Rotation", "Width Shift", "Height Shift", 
+    "Shear", "Zoom", "Horizontal Flip", 
+    "Vertical Flip"  # Explicitly include vertical flip
+]
 
-# Train the model with your data
-# model.fit(...)
+# Save the original and augmented images as a single image with labels
+fig, axes = plt.subplots(3, 3, figsize=(10, 10))
 
-# Save the model in the .keras format
-model.save('/home/exouser/plant_disease_model.keras')
-print("Model saved successfully.")
+# Original image
+axes[0, 0].imshow(img)
+axes[0, 0].set_title("Potato Leaf - Original Image")
+axes[0, 0].axis('off')
+
+# Show augmented images
+for i in range(1, 7):  # Show 6 augmented images
+    augmented_img = next(augmented_images)[0].astype('uint8')  # Use next() to get the augmented image
+    ax = axes[i // 3, i % 3]  # Place images in a grid
+    ax.imshow(augmented_img)
+    ax.set_title(f"Potato Leaf - {augmentation_types[i-1]}")
+    ax.axis('off')
+
+# Remove any empty subplots (if any)
+for j in range(7, 9):
+    fig.delaxes(axes.flatten()[j])
+
+# Save the plot as an image file
+plt.tight_layout()
+plt.savefig('/home/exouser/augmented_potato_leaf_images.png')  # Save the image
+plt.close()
