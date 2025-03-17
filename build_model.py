@@ -1,13 +1,13 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models
-from tensorflow.keras.applications import ResNet50
+from tensorflow.keras.applications import MobileNetV2
 import matplotlib.pyplot as plt
 import numpy as np
 
 # Build Hierarchical Model with Deep Supervision and Adaptive Loss Balancing
 def build_model(num_classes_plant, num_classes_disease):
-    # Load ResNet50 model with pre-trained weights (ImageNet)
-    base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(150, 150, 3))
+    # Load MobileNetV2 model with pre-trained weights (ImageNet)
+    base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(150, 150, 3))
 
     # Freeze the base model layers
     base_model.trainable = False
